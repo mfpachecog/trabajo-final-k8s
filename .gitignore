@@ -17,3 +17,9 @@ Thumbs.db
 # Editores
 .vscode/
 .idea/
+
+# Archivos internos de trabajo (no publicar) y guía oficial
+CLAUDE.md
+MEMORY.md
+GUION_VIDEO.md
+k8s_guide.pdf
