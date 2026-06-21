@@ -1,0 +1,33 @@
+# =============================================================================
+# Aplicación de ArgoCD — Entorno DESARROLLO
+# =============================================================================
+# Define una app gestionada por ArgoCD bajo el modelo GitOps (pull):
+# ArgoCD observa el repositorio Git y sincroniza el chart de Helm al clúster.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: task-api-dev
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    # IMPORTANTE: reemplazar TU_USUARIO_GITHUB por tu usuario real de GitHub.
+    repoURL: https://github.com/mfpachecog/trabajo-final-k8s.git
+    targetRevision: main
+    path: deploy/helm/task-api-chart
+    helm:
+      # Usa los valores por defecto (Desarrollo).
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: task-api-dev
+
+  syncPolicy:
+    automated:
+      prune: true      # Elimina recursos que ya no están en Git.
+      selfHeal: true   # Revierte cambios manuales hechos en el clúster.
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,33 @@
+# =============================================================================
+# Valores POR DEFECTO del chart (entorno: Desarrollo)
+# =============================================================================
+# Estos valores se aplican siempre. El archivo values-prod.yaml los sobreescribe
+# (override) para el entorno de Producción.
+
+# Número de réplicas del pod. En desarrollo basta con 1.
+replicaCount: 1
+
+image:
+  # IMPORTANTE: reemplazar TU_USUARIO_DOCKERHUB por tu usuario real de Docker Hub.
+  repository: mfpachecog/task-api
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  # ClusterIP expone el servicio solo dentro del clúster (suficiente para dev).
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+# Variables de entorno inyectadas al contenedor.
+env:
+  APP_ENV: "Desarrollo"
+
+# Límites y solicitudes de recursos (buenas prácticas para el scheduler de k8s).
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "250m"
+    memory: "128Mi"

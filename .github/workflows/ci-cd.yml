@@ -1,0 +1,86 @@
+# =============================================================================
+# Pipeline CI/CD — Task Manager API
+# =============================================================================
+# Se dispara con cada push a la rama 'main'. Flujo:
+#   1. Construye la imagen Docker del microservicio.
+#   2. La publica en Docker Hub con dos tags: 'latest' y el SHA del commit.
+#   3. Actualiza el tag de la imagen en el chart de Helm (values.yaml).
+#   4. Hace commit y push de ese cambio (GitOps).
+# ArgoCD detecta el cambio en Git y sincroniza automáticamente el clúster.
+# El commit del paso 4 incluye [skip ci] para no disparar el pipeline en bucle.
+# =============================================================================
+
+name: CI-CD Task API
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      # Si solo cambió el tag (commit del propio pipeline), no re-ejecutar.
+      - 'deploy/helm/**'
+
+# Permite que el pipeline haga commit del cambio de tag en el repo.
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---------------------------------------------------------------------
+      # 1. Descarga el código del repositorio.
+      # ---------------------------------------------------------------------
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------------------------------
+      # 2. Autenticación en Docker Hub usando los secretos del repositorio.
+      # ---------------------------------------------------------------------
+      - name: Login en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # ---------------------------------------------------------------------
+      # 3. Construye y publica la imagen con tags 'latest' y SHA del commit.
+      # ---------------------------------------------------------------------
+      - name: Build y Push de la imagen Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/task-api:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/task-api:${{ github.sha }}
+
+      # ---------------------------------------------------------------------
+      # 4. Actualiza el tag de la imagen en el chart de Helm (GitOps).
+      # ---------------------------------------------------------------------
+      - name: Actualizar tag en values.yaml
+        run: |
+          VALUES_FILE="deploy/helm/task-api-chart/values.yaml"
+          # Reemplaza la línea 'tag: "..."' por el SHA del commit actual.
+          sed -i -E "s|^(\s*tag:\s*).*|\1\"${{ github.sha }}\"|" "$VALUES_FILE"
+          echo "Nuevo contenido de la sección image:"
+          grep -A2 "^image:" "$VALUES_FILE"
+
+      # ---------------------------------------------------------------------
+      # 5. Commit y push del cambio para que ArgoCD lo sincronice.
+      # ---------------------------------------------------------------------
+      - name: Commit del cambio de tag (GitOps)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add deploy/helm/task-api-chart/values.yaml
+          if git diff --staged --quiet; then
+            echo "No hay cambios en el tag, nada que commitear."
+          else
+            git commit -m "ci: actualizar imagen a ${{ github.sha }} [skip ci]"
+            git push
+          fi

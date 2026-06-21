@@ -1,0 +1,10 @@
+apiVersion: v2
+name: task-api
+description: Helm chart para el microservicio Task Manager API
+type: application
+
+# Versión del chart (se incrementa cuando cambia el chart en sí).
+version: 0.1.0
+
+# Versión de la aplicación que despliega el chart.
+appVersion: "1.0.0"

@@ -1,0 +1,25 @@
+# =============================================================================
+# Overrides para el entorno de PRODUCCIÓN
+# =============================================================================
+# Se aplican ENCIMA de values.yaml. Solo se declara lo que cambia respecto a dev.
+
+# Alta disponibilidad: varias réplicas.
+replicaCount: 3
+
+service:
+  # LoadBalancer expone el servicio al exterior del clúster.
+  type: LoadBalancer
+  port: 80
+  targetPort: 8000
+
+env:
+  APP_ENV: "Producción"
+
+# En producción damos más recursos.
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"

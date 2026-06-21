@@ -1,0 +1,34 @@
+# =============================================================================
+# Aplicación de ArgoCD — Entorno PRODUCCIÓN
+# =============================================================================
+# Igual que la de desarrollo, pero aplicando los overrides de producción
+# (values-prod.yaml encima de values.yaml).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: task-api-prod
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    # IMPORTANTE: reemplazar TU_USUARIO_GITHUB por tu usuario real de GitHub.
+    repoURL: https://github.com/mfpachecog/trabajo-final-k8s.git
+    targetRevision: main
+    path: deploy/helm/task-api-chart
+    helm:
+      # Los archivos se aplican en orden: primero values.yaml, luego el override.
+      valueFiles:
+        - values.yaml
+        - values-prod.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: task-api-prod
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
