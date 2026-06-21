@@ -1,5 +1,7 @@
 # Despliegue de Microservicio en Kubernetes con GitOps
 
+![CI-CD](https://github.com/mfpachecog/trabajo-final-k8s/actions/workflows/ci-cd.yml/badge.svg)
+
 Trabajo final — Diplomado en Arquitectura de Software · Universidad de La Sabana.
 
 Este proyecto implementa el ciclo de vida completo **cloud-native** de un
