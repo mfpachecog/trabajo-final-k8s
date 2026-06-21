@@ -10,7 +10,7 @@ replicaCount: 1
 image:
   # IMPORTANTE: reemplazar TU_USUARIO_DOCKERHUB por tu usuario real de Docker Hub.
   repository: mfpachecog/task-api
-  tag: "latest"
+  tag: "149b327883dabc92c7edb45b2dd2d0af6de98884"
   pullPolicy: IfNotPresent
 
 service:
