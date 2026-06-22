@@ -77,7 +77,7 @@ def root() -> dict:
         "service": "Task Manager API",
         "version": APP_VERSION,
         "environment": APP_ENV,
-        "message": f"Servicio en línea ejecutándose en entorno: {APP_ENV} CAMBIO CREADO EN VIVO - DEMO",
+        "message": f"Servicio en línea ejecutándose en entorno: {APP_ENV} CAMBIO CREADO EN VIVO - DEMO, prueba",
     }
 
 
